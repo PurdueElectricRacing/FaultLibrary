@@ -11,6 +11,7 @@
 #include "main.h"
 #include "stm32l4xx_hal.h"
 #include "cmsis_os.h"
+#include "eeprom.h"
 
 #define PER 1
 #define GREAT PER
@@ -19,7 +20,9 @@
 
 #define FAULT_MAX 32
 
-typedef struct {
+#define FAULT_EEPROM_NAME "flt"
+
+typedef struct{
   uint32_t signal; //reset after each checking cycle
   uint32_t set; //achieved minimum time
   uint32_t historic; //only resets by user
@@ -85,8 +88,12 @@ void faultCreate( uint8_t bit_num,
                   fault_off_t off_type,
                   void (*off_handle));
 void signalFault(uint8_t bit_pos);
+void faultLibShutdown();
+
+//SAMPLE FUNCTIONS
 void handleCriticalError();
 void handleMediumError();
 void handleWarningError();
+void handleNoError();
 
 #endif

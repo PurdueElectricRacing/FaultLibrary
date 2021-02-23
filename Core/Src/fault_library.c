@@ -1,5 +1,7 @@
 #include "fault_library.h"
 
+TaskHandle_t Faul_Task_Handle;
+
 void twoBitFieldSet(uint64_t *field, uint8_t loc, uint8_t val);
 uint8_t twoBitFieldGet(uint64_t *field, uint8_t loc);
 void oneBitFieldSet(uint32_t *field, uint8_t loc, uint8_t val);
@@ -11,7 +13,7 @@ void callOneBitFunction(uint8_t bit_num, uint32_t *saved_call_types,
 
 void twoBitFieldSet(uint64_t *field, uint8_t loc, uint8_t val)
 {
-  *field *= ~(0b11 << loc * 2);
+  *field &= ~(0b11 << loc * 2);
   *field |= val << loc * 2;
 }
 
@@ -21,7 +23,7 @@ uint8_t twoBitFieldGet(uint64_t *field, uint8_t loc)
 }
 
 void oneBitFieldSet(uint32_t *field, uint8_t loc, uint8_t val) {
-  *field *= ~(0b11 << loc);
+  *field &= (uint32_t) ~(0b1 << loc);
   *field |= val << loc;
 }
 
@@ -33,11 +35,10 @@ uint8_t oneBitFieldGet(uint32_t *field, uint8_t loc)
 //starts the fault task
 void faultLibStart()
 {
-  faults.stored.signal = 0;
-  faults.stored.set = 0;
-  //TODO: pull stored from eeprom
 
-  xTaskCreate(faultTask, "Faults", 256, NULL, 1, NULL);
+  eepromLoadStruct(FAULT_EEPROM_NAME);
+
+  xTaskCreate(faultTask, "Faults", 256, NULL, 1, &Faul_Task_Handle);
 }
 
 //sets up a new fault, gotta love these arguments
@@ -112,7 +113,7 @@ void faultTask()
                              FALL_CONTINUOUS, faults.fall_handler);
         }
       }
-      else if(oneBitFieldGet(&faults.historic_type) == HISTORIC_OVERRIDE && oneBitFieldGet(&faults.stored.historic, i))
+      else if(oneBitFieldGet(&faults.historic_type, i) == HISTORIC_OVERRIDE && oneBitFieldGet(&faults.stored.historic, i))
       {
         // fault not on, but historic says to override
         oneBitFieldSet(&faults.stored.set, i, 1);
@@ -174,6 +175,17 @@ void callOneBitFunction(uint8_t bit_num, uint32_t *saved_call_types,
   }
 }
 
+void faultLibShutdown()
+{
+  //vTaskDelete(Faul_Task_Handle);
+  uint8_t e = eepromSaveStruct(FAULT_EEPROM_NAME);
+  if(!e)
+  {
+    handleNoError();
+  }
+}
+
+
 void handleCriticalError()
 {
   HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
@@ -195,4 +207,11 @@ void handleWarningError()
   HAL_GPIO_WritePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
 
+}
+
+void handleNoError()
+{
+  HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
 }

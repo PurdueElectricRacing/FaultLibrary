@@ -45,7 +45,8 @@ Core/Src/fault_library.o: ../Core/Src/fault_library.c \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
+ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h
 
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h:
 
@@ -140,3 +141,5 @@ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h:
 
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/timers.h:
+
+C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h:

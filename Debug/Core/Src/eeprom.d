@@ -1,4 +1,5 @@
-Core/Src/main.o: ../Core/Src/main.c \
+Core/Src/eeprom.o: ../Core/Src/eeprom.c \
+ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/stm32l4xx_hal_conf.h \
@@ -27,28 +28,9 @@ Core/Src/main.o: ../Core/Src/main.c \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr_ex.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/FreeRTOSConfig.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/portable.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/task.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/list.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/task.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h
+ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h
+
+C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h:
 
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h:
 
@@ -107,45 +89,3 @@ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Drivers/STM32L4xx_HAL_Dr
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h:
 
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/FreeRTOSConfig.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/portable.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/task.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/list.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/timers.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/task.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/queue.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/queue.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/timers.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h:

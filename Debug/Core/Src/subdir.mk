@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Core/Src/eeprom.c \
 ../Core/Src/fault_library.c \
 ../Core/Src/freertos.c \
 ../Core/Src/main.c \
@@ -13,6 +14,7 @@ C_SRCS += \
 ../Core/Src/system_stm32l4xx.c 
 
 OBJS += \
+./Core/Src/eeprom.o \
 ./Core/Src/fault_library.o \
 ./Core/Src/freertos.o \
 ./Core/Src/main.o \
@@ -22,6 +24,7 @@ OBJS += \
 ./Core/Src/system_stm32l4xx.o 
 
 C_DEPS += \
+./Core/Src/eeprom.d \
 ./Core/Src/fault_library.d \
 ./Core/Src/freertos.d \
 ./Core/Src/main.d \
