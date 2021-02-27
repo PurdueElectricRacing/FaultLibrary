@@ -1,4 +1,5 @@
-Core/Src/main.o: ../Core/Src/main.c \
+Core/Src/fault_test.o: ../Core/Src/fault_test.c \
+ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_test.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/stm32l4xx_hal_conf.h \
@@ -46,11 +47,9 @@ Core/Src/main.o: ../Core/Src/main.c \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_test.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h
+ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h
+
+C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_test.h:
 
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h:
 
@@ -146,12 +145,4 @@ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Middlewares/Third_Party/
 
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h:
 
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h:
-
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_test.h:
-
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h:

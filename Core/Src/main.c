@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "fault_library.h"
 #include "eeprom.h"
+#include "fault_test.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,6 +67,15 @@ void buttonCheckerTask();
 /* USER CODE BEGIN 0 */
 uint8_t bit_pos = 0;
 uint8_t bit_pos2 = 1;
+
+void handleCriticalFault() {
+  setLightRed();
+}
+
+void handleErrorFault() {
+  setLightBlue();
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -118,25 +128,15 @@ int main(void)
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   eepromInitialize(&hi2c3, 4000, 0x50);
-  //You have to call the link struct yourself :/
-  uint64_t b = 0;
   eepromLinkStruct(&(faults.stored), sizeof(fault_stored_t), FAULT_EEPROM_NAME, 2, 1);
   eepromCleanHeaders();
 
-  faultLibStart();
+  faultLibInitialize();
   xTaskCreate(&buttonCheckerTask, "Button", 256, NULL, 1, NULL);
-  faultCreate(bit_pos, FAULT_ERROR,
-              1000, 3000,
-              HISTORIC_IGNORE,
-              SET_SINGLE, handleCriticalError,
-              FALL_SINGLE, handleMediumError,
-              OFF_ENABLED, handleWarningError);
-  faultCreate(bit_pos2, FAULT_ERROR,
-                1000, 2000,
-                HISTORIC_IGNORE,
-                SET_SINGLE, handleCriticalError,
-                FALL_DISABLED, handleMediumError,
-                OFF_ENABLED, handleWarningError);
+  faultCreate(bit_pos, FAULT_CRITICAL, 1000, 3000, HISTORIC_IGNORE,
+              NULL, NULL, setLightGreen);//setLightRed, setLightBlue, setLightGreen);
+  faultCreate(bit_pos2, FAULT_ERROR, 1000, 0, HISTORIC_IGNORE,
+              NULL, NULL, setLightGreen);//setLightRed, NULL, setLightGreen);
 
   /* USER CODE END RTOS_QUEUES */
 
@@ -365,6 +365,7 @@ void buttonCheckerTask()
     if (HAL_GPIO_ReadPin(BUTTON_3_GPIO_Port, BUTTON_3_Pin))
     {
       faultLibShutdown();
+      setLightOff();
     }
 
 

@@ -30,38 +30,18 @@ typedef struct{
 } fault_stored_t;
 
 typedef struct {
-  fault_stored_t stored;
+  volatile fault_stored_t stored;
   uint16_t rise_threshold[FAULT_MAX];
   uint16_t fall_threshold[FAULT_MAX];
   uint16_t current_time[FAULT_MAX];
   void (*set_handler[FAULT_MAX])(); //function pointer
-  void (*fall_handler[FAULT_MAX])();
+  void (*cont_handler[FAULT_MAX])();
   void (*off_handler[FAULT_MAX])();
-  uint64_t set_call_type;
-  uint64_t fall_call_type;
-  uint32_t off_call_type;
   uint32_t historic_type;
 
 } fault_t;
 
 fault_t faults;
-
-typedef enum {
-  SET_DISABLED,
-  SET_SINGLE,
-  SET_CONTINUOUS
-} fault_set_t;
-
-typedef enum {
-  FALL_DISABLED,
-  FALL_SINGLE,
-  FALL_CONTINUOUS
-} fault_fall_t;
-
-typedef enum {
-  OFF_DISABLED,
-  OFF_ENABLED
-} fault_off_t;
 
 typedef enum {
   HISTORIC_IGNORE,
@@ -74,26 +54,27 @@ typedef enum {
   FAULT_CRITICAL
 } fault_criticality_t;
 
-void faultLibStart();
-void faultTask();
+void faultLibInitialize();
 void faultCreate( uint8_t bit_num,
                   fault_criticality_t level,
                   uint16_t rise_threshold_ms,
                   uint16_t fall_threshold_ms,
                   fault_historic_t hist,
-                  fault_set_t set_type,
                   void (*set_handle),
-                  fault_fall_t fall_type,
-                  void (*fall_handle),
-                  fault_off_t off_type,
+                  void (*cont_handle),
                   void (*off_handle));
 void signalFault(uint8_t bit_pos);
 void faultLibShutdown();
+void clearHistory();
+uint8_t getFaultSet(uint8_t loc);
+uint8_t getFaultSignal(uint8_t loc);
+uint8_t getHistoricOverriding(uint8_t loc);
+fault_criticality_t getCriticality(uint8_t loc);
 
-//SAMPLE FUNCTIONS
-void handleCriticalError();
-void handleMediumError();
-void handleWarningError();
-void handleNoError();
+//Generic criticality functions
+//Called once when fault set
+void handleCriticalFault();
+void handleErrorFault();
+void handleWarningFault();
 
 #endif

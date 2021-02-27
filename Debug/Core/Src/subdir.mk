@@ -6,6 +6,7 @@
 C_SRCS += \
 ../Core/Src/eeprom.c \
 ../Core/Src/fault_library.c \
+../Core/Src/fault_test.c \
 ../Core/Src/freertos.c \
 ../Core/Src/main.c \
 ../Core/Src/stm32l4xx_hal_msp.c \
@@ -16,6 +17,7 @@ C_SRCS += \
 OBJS += \
 ./Core/Src/eeprom.o \
 ./Core/Src/fault_library.o \
+./Core/Src/fault_test.o \
 ./Core/Src/freertos.o \
 ./Core/Src/main.o \
 ./Core/Src/stm32l4xx_hal_msp.o \
@@ -26,6 +28,7 @@ OBJS += \
 C_DEPS += \
 ./Core/Src/eeprom.d \
 ./Core/Src/fault_library.d \
+./Core/Src/fault_test.d \
 ./Core/Src/freertos.d \
 ./Core/Src/main.d \
 ./Core/Src/stm32l4xx_hal_msp.d \

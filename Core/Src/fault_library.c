@@ -1,142 +1,121 @@
 #include "fault_library.h"
 
 TaskHandle_t Faul_Task_Handle;
+uint8_t task_active = 0;
 
-void twoBitFieldSet(uint64_t *field, uint8_t loc, uint8_t val);
-uint8_t twoBitFieldGet(uint64_t *field, uint8_t loc);
-void oneBitFieldSet(uint32_t *field, uint8_t loc, uint8_t val);
-uint8_t oneBitFieldGet(uint32_t *field, uint8_t loc);
-void callTwoBitFunction(uint8_t bit_num, uint64_t *saved_call_types,
-                  uint8_t current_call_type, void (*handlers[])());
-void callOneBitFunction(uint8_t bit_num, uint32_t *saved_call_types,
-                  uint8_t current_call_type, void (*handlers[])());
-
-void twoBitFieldSet(uint64_t *field, uint8_t loc, uint8_t val)
-{
-  *field &= ~(0b11 << loc * 2);
-  *field |= val << loc * 2;
-}
-
-uint8_t twoBitFieldGet(uint64_t *field, uint8_t loc)
-{
-  return ((*field >> loc * 2) & 0b11);
-}
-
-void oneBitFieldSet(uint32_t *field, uint8_t loc, uint8_t val) {
-  *field &= (uint32_t) ~(0b1 << loc);
-  *field |= val << loc;
-}
-
-uint8_t oneBitFieldGet(uint32_t *field, uint8_t loc)
-{
-  return ((*field >> loc ) & 1);
-}
+void faultTask();
+void callFunction(uint8_t bit_num, void (*handlers[])());
+void setFault(uint8_t loc, uint8_t val);
+void setHistoric(uint8_t loc, uint8_t val);
+void setCriticality(uint8_t loc, uint8_t val);
 
 //starts the fault task
-void faultLibStart()
+void faultLibInitialize()
 {
-
   eepromLoadStruct(FAULT_EEPROM_NAME);
+  //Only care about historic values...
+  faults.stored.signal = 0;
+  faults.stored.set = 0;
+  faults.stored.criticality = 0;
 
+  task_active = 1;
   xTaskCreate(faultTask, "Faults", 256, NULL, 1, &Faul_Task_Handle);
 }
 
-//sets up a new fault, gotta love these arguments
+// sets up a new fault to track
+// max times for 50 ms task period are 3276 seconds (54 mins)
 void faultCreate(uint8_t bit_num, fault_criticality_t level,
                     uint16_t rise_threshold_ms, uint16_t fall_threshold_ms,
-                    fault_historic_t hist,
-                    fault_set_t set_type, void (*set_handle),
-                    fault_fall_t fall_type, void (*fall_handle),
-                    fault_off_t off_type, void (*off_handle))
+                    fault_historic_t hist, void (*set_handle),
+                    void (*cont_handle), void (*off_handle))
 {
-  twoBitFieldSet(&faults.stored.criticality, bit_num, level);
+  setCriticality(bit_num, level);
   faults.rise_threshold[bit_num] = rise_threshold_ms / PERIOD_FAULT_TASK;
   faults.fall_threshold[bit_num] = fall_threshold_ms / PERIOD_FAULT_TASK;
-  oneBitFieldSet(&faults.historic_type, bit_num, hist);
-  twoBitFieldSet(&faults.set_call_type, bit_num, set_type);
+  //set historic type
+  faults.historic_type &= (uint32_t) ~(0b1 << bit_num);
+  faults.historic_type |= hist << bit_num;
   faults.set_handler[bit_num] = set_handle;
-  twoBitFieldSet(&faults.fall_call_type, bit_num, fall_type);
-  faults.fall_handler[bit_num] = fall_handle;
-  oneBitFieldSet(&faults.off_call_type, bit_num, off_type);
+  faults.cont_handler[bit_num] = cont_handle;
   faults.off_handler[bit_num] = off_handle;
 }
 
-//signals that a fault has occurred
-//NOT set, set requires signal on for a time threshold
-void signalFault(uint8_t bit_pos)
-{
-  faults.stored.signal |= 1 << bit_pos;
-}
-
+//main loop
 void faultTask()
 {
-  while (PER == GREAT)
+  while (task_active)
   {
     TickType_t current_tick_time = xTaskGetTickCount();
 
     for (int i = 0; i < FAULT_MAX; i++)
     {
-      if (oneBitFieldGet(&faults.stored.set, i))
+      if (getHistoricOverriding(i))
+      {
+        callFunction(i, faults.cont_handler);
+        setFault(i, 1);
+      }
+      else if (getFaultSet(i))
       {
         //fault is currently active
-        callTwoBitFunction(i, &faults.set_call_type,
-                           SET_CONTINUOUS, faults.set_handler);
+        callFunction(i, faults.cont_handler);
 
-        if (oneBitFieldGet(&faults.stored.signal, i))
+        if (getFaultSignal(i))
         {
           //reset cooldown counter if set again
           faults.current_time[i] = 0;
         }
-        else if (faults.current_time[i] > faults.fall_threshold[i])
+        else if (faults.fall_threshold[i] == 0)
+        {
+          // fall threshold infinite
+        }
+        else if (faults.current_time[i] >= faults.fall_threshold[i])
         {
           // It fell for the minimum time, turn fault off
-          oneBitFieldSet(&faults.stored.set, i, 0);
+          setFault(i, 0);
           // reset counter for rise
           faults.current_time[i] = 0;
-
-          callOneBitFunction(i, &faults.off_call_type,
-                             OFF_ENABLED, faults.off_handler);
+          callFunction(i, faults.off_handler);
         }
         else
         {
           //Currently falling, increment timer
-
-          if (faults.current_time[i] == 0) {
-            // initial falling
-            callTwoBitFunction(i, &faults.fall_call_type,
-                               FALL_SINGLE, faults.fall_handler);
-          }
-
           faults.current_time[i]++;
-
-          callTwoBitFunction(i, &faults.fall_call_type,
-                             FALL_CONTINUOUS, faults.fall_handler);
         }
       }
-      else if(oneBitFieldGet(&faults.historic_type, i) == HISTORIC_OVERRIDE && oneBitFieldGet(&faults.stored.historic, i))
-      {
-        // fault not on, but historic says to override
-        oneBitFieldSet(&faults.stored.set, i, 1);
-        callTwoBitFunction(i, &faults.set_call_type,
-                           SET_SINGLE, faults.set_handler);
-      }
-      else if(oneBitFieldGet(&faults.stored.signal, i))
+      else if(getFaultSignal(i))
       {
         // fault is not set, use rise counter
 
-        if (faults.current_time[i] < faults.rise_threshold[i])
+        if(faults.rise_threshold[i] == 0)
+        {
+          //rise threshold infinite
+        }
+        else if (faults.current_time[i] < faults.rise_threshold[i])
         {
           faults.current_time[i]++;
         }
         else
         {
           // fault set, reset timer for cooldown
-          oneBitFieldSet(&faults.stored.set, i, 1);
-          oneBitFieldSet(&faults.stored.historic, i, 1);
+          setFault(i, 1);
+          setHistoric(i, 1);
           faults.current_time[i] = 0;
+          callFunction(i, faults.set_handler);
 
-          callTwoBitFunction(i, &faults.set_call_type,
-                       SET_SINGLE, faults.set_handler);
+          //Called once
+          switch(getCriticality(i))
+          {
+            case FAULT_WARNING:
+              handleWarningFault();
+            break;
+            case FAULT_ERROR:
+              handleErrorFault();
+            break;
+            case FAULT_CRITICAL:
+              handleCriticalFault();
+            break;
+          }
+
         }
       }
       else
@@ -144,7 +123,8 @@ void faultTask()
         //fault and signal off, reset timer
         faults.current_time[i] = 0;
       }
-    }
+
+    }// end for loop
 
     //read signals, reset for next cycle
     faults.stored.signal = 0;
@@ -155,63 +135,95 @@ void faultTask()
   vTaskDelete(NULL);
 }
 
-void callTwoBitFunction(uint8_t bit_num, uint64_t *saved_call_types,
-                  uint8_t current_call_type, void (*handlers[])())
-{
-  if (twoBitFieldGet(saved_call_types, bit_num) == current_call_type &&
-      handlers[bit_num] != NULL)
-  {
-    (*handlers[bit_num])(); //call corresponding function
-  }
-}
-
-void callOneBitFunction(uint8_t bit_num, uint32_t *saved_call_types,
-                  uint8_t current_call_type, void (*handlers[])())
-{
-  if (oneBitFieldGet(saved_call_types, bit_num) == current_call_type &&
-      handlers[bit_num] != NULL)
-  {
-    (*handlers[bit_num])(); //call corresponding function
-  }
-}
-
 void faultLibShutdown()
 {
-  //vTaskDelete(Faul_Task_Handle);
-  uint8_t e = eepromSaveStruct(FAULT_EEPROM_NAME);
-  if(!e)
-  {
-    handleNoError();
+  if(task_active) {
+    //vTaskDelete(Faul_Task_Handle);
+    task_active = 0; //stops main loop
+    eepromSaveStruct(FAULT_EEPROM_NAME);
   }
 }
 
-
-void handleCriticalError()
+//clears history on controller and in eeprom
+void clearHistory()
 {
-  HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
-
+  faults.stored.historic = 0;
+  eepromSaveStruct(FAULT_EEPROM_NAME);
 }
 
-void handleMediumError()
+//calls at function at the specified index
+void callFunction(uint8_t bit_num, void (*handlers[])())
 {
-  HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+  if (handlers[bit_num] != NULL)
+  {
+    (*handlers[bit_num])(); //call corresponding function
+  }
 }
 
-void handleWarningError()
+uint8_t getFaultSet(uint8_t loc)
 {
-  HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
-
+  return ((faults.stored.set >> loc) & 1);
 }
 
-void handleNoError()
+uint8_t getFaultSignal(uint8_t loc)
 {
-  HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+  return ((faults.stored.signal >> loc) & 1);
 }
+
+uint8_t getHistoricOverriding(uint8_t loc)
+{
+  if (((faults.historic_type >> loc) & 1) == HISTORIC_OVERRIDE)
+  {
+    return ((faults.stored.historic >> loc) & 1);
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+fault_criticality_t getCriticality(uint8_t loc)
+{
+  return ((faults.stored.criticality >> loc * 2) & 0b11);
+}
+
+//signals that a fault has occurred
+//NOT set, set requires signal on for a time threshold
+void signalFault(uint8_t bit_pos)
+{
+  faults.stored.signal |= 1 << bit_pos;
+}
+
+void setFault(uint8_t loc, uint8_t val)
+{
+  faults.stored.set &= (uint32_t) ~(0b1 << loc);
+  faults.stored.set |= val << loc;
+}
+
+void setHistoric(uint8_t loc, uint8_t val)
+{
+  faults.stored.historic &= (uint32_t) ~(0b1 << loc);
+  faults.stored.historic |= val << loc;
+}
+
+void setCriticality(uint8_t loc, uint8_t val)
+{
+  faults.stored.criticality &= ~(0b11 << loc * 2);
+  faults.stored.criticality |= val << loc * 2;
+}
+
+__weak void handleCriticalFault()
+{
+  //Define elsewhere if you want to use it
+}
+
+__weak void handleErrorFault()
+{
+  //Define elsewhere if you want to use it
+}
+
+__weak void handleWarningFault()
+{
+  //Define elsewhere if you want to use it
+}
+
