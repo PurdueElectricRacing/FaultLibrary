@@ -1,5 +1,6 @@
 #include "fault_library.h"
 
+
 TaskHandle_t Faul_Task_Handle;
 uint8_t task_active = 0;
 
@@ -9,35 +10,41 @@ void setFault(uint8_t loc, uint8_t val);
 void setHistoric(uint8_t loc, uint8_t val);
 void setCriticality(uint8_t loc, uint8_t val);
 
+// GENERATED VALUES --------
+const uint16_t rise_init[FAULT_MAX] = {1000, 1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+const uint16_t fall_init[FAULT_MAX] = {3000, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+#define HISTORIC_INIT 0b00000000000000000000000000000000
+#define CRITICALITY_INIT 0b0000000000000000000000000000000000000000000000000000000000000110
+const void (*set_handler_init[FAULT_MAX])() = {setLightRed, setLightBlue, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+const void (*cont_handler_init[FAULT_MAX])() = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+const void (*off_handler_init[FAULT_MAX])() = {setLightGreen, setLightGreen, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+// END GENERATED VALUES -------
+
+
 //starts the fault task
 void faultLibInitialize()
 {
   eepromLoadStruct(FAULT_EEPROM_NAME);
-  //Only care about historic values...
+
+  memcpy(faults.rise_threshold, rise_init, sizeof(faults.rise_threshold));
+  memcpy(faults.fall_threshold, fall_init, sizeof(faults.fall_threshold));
+  // Convert thresholds from ms to ticks
+  for(int i = 0; i < FAULT_MAX; i++)
+  {
+    faults.rise_threshold[i] /= PERIOD_FAULT_TASK;
+    faults.fall_threshold[i] /= PERIOD_FAULT_TASK;
+  }
+  faults.historic_type = HISTORIC_INIT;
+  faults.stored.criticality = CRITICALITY_INIT;
+  memcpy(faults.set_handler, set_handler_init, sizeof(faults.set_handler));
+  memcpy(faults.cont_handler, cont_handler_init, sizeof(faults.cont_handler));
+  memcpy(faults.off_handler, off_handler_init, sizeof(faults.off_handler));
+
   faults.stored.signal = 0;
   faults.stored.set = 0;
-  faults.stored.criticality = 0;
 
   task_active = 1;
   xTaskCreate(faultTask, "Faults", 256, NULL, 1, &Faul_Task_Handle);
-}
-
-// sets up a new fault to track
-// max times for 50 ms task period are 3276 seconds (54 mins)
-void faultCreate(uint8_t bit_num, fault_criticality_t level,
-                    uint16_t rise_threshold_ms, uint16_t fall_threshold_ms,
-                    fault_historic_t hist, void (*set_handle),
-                    void (*cont_handle), void (*off_handle))
-{
-  setCriticality(bit_num, level);
-  faults.rise_threshold[bit_num] = rise_threshold_ms / PERIOD_FAULT_TASK;
-  faults.fall_threshold[bit_num] = fall_threshold_ms / PERIOD_FAULT_TASK;
-  //set historic type
-  faults.historic_type &= (uint32_t) ~(0b1 << bit_num);
-  faults.historic_type |= hist << bit_num;
-  faults.set_handler[bit_num] = set_handle;
-  faults.cont_handler[bit_num] = cont_handle;
-  faults.off_handler[bit_num] = off_handle;
 }
 
 //main loop

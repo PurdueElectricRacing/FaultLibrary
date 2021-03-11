@@ -48,9 +48,10 @@ Core/Src/main.o: ../Core/Src/main.c \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h \
  C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_test.h \
- C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h
+ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h \
+ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h \
+ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_test.h
 
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h:
 
@@ -150,8 +151,10 @@ C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/main.h:
 
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h:
 
-C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h:
-
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_test.h:
 
 C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_library.h:
+
+C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/eeprom.h:
+
+C:/Users/lukeo/OneDrive\ -\ purdue.edu/PER/FaultLibrary/Core/Inc/fault_test.h:

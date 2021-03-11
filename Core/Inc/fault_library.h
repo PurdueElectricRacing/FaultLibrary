@@ -8,10 +8,14 @@
 #ifndef FAULT_LIBRARY_H_
 #define FAULT_LIBRARY_H_
 
+#include <string.h>
 #include "main.h"
 #include "stm32l4xx_hal.h"
 #include "cmsis_os.h"
 #include "eeprom.h"
+
+// Be sure to include headers with locations to functions!
+#include "fault_test.h"
 
 #define PER 1
 #define GREAT PER
@@ -22,7 +26,7 @@
 
 #define FAULT_EEPROM_NAME "flt"
 
-typedef struct{
+typedef struct {
   uint32_t signal; //reset after each checking cycle
   uint32_t set; //achieved minimum time
   uint32_t historic; //only resets by user
@@ -55,14 +59,6 @@ typedef enum {
 } fault_criticality_t;
 
 void faultLibInitialize();
-void faultCreate( uint8_t bit_num,
-                  fault_criticality_t level,
-                  uint16_t rise_threshold_ms,
-                  uint16_t fall_threshold_ms,
-                  fault_historic_t hist,
-                  void (*set_handle),
-                  void (*cont_handle),
-                  void (*off_handle));
 void signalFault(uint8_t bit_pos);
 void faultLibShutdown();
 void clearHistory();

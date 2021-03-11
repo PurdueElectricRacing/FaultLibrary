@@ -133,10 +133,6 @@ int main(void)
 
   faultLibInitialize();
   xTaskCreate(&buttonCheckerTask, "Button", 256, NULL, 1, NULL);
-  faultCreate(bit_pos, FAULT_CRITICAL, 1000, 3000, HISTORIC_IGNORE,
-              NULL, NULL, setLightGreen);//setLightRed, setLightBlue, setLightGreen);
-  faultCreate(bit_pos2, FAULT_ERROR, 1000, 0, HISTORIC_IGNORE,
-              NULL, NULL, setLightGreen);//setLightRed, NULL, setLightGreen);
 
   /* USER CODE END RTOS_QUEUES */
 
