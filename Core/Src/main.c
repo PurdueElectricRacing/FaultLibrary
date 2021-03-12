@@ -352,11 +352,11 @@ void buttonCheckerTask()
     }
     else if (HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin))
     {
-      signalFault(bit_pos);
+      signalFault(BUTTON_1_FAULT_NUM);
     }
     else if (HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin))
     {
-      signalFault(bit_pos2);
+      signalFault(BUTTON_2_FAULT_NUM);
     }
     if (HAL_GPIO_ReadPin(BUTTON_3_GPIO_Port, BUTTON_3_Pin))
     {

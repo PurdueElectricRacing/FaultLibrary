@@ -26,6 +26,11 @@
 
 #define FAULT_EEPROM_NAME "flt"
 
+// GENERATED VALUES ------
+typedef enum { BUTTON_1_FAULT_NUM, BUTTON_2_FAULT_NUM } fault_name_t;
+
+// END GENERATED VALUES ---------
+
 typedef struct {
   uint32_t signal; //reset after each checking cycle
   uint32_t set; //achieved minimum time

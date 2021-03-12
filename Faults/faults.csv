@@ -1,6 +1,6 @@
 Fault Number,Fault Name,Rise Threshold (ms),Fall Threshold (ms),Criticality,Historic Type,Set handler,Continuous handler,Off handler
-0,Button 1,1000,3000,FAULT_CRITICAL,HISTORIC_IGNORE,setLightRed,NULL,setLightGreen
-1,Button 2,1000,500,FAULT_ERROR,HISTORIC_IGNORE,setLightBlue,NULL,setLightGreen
+0,BUTTON_1,1000,3000,FAULT_CRITICAL,HISTORIC_IGNORE,setLightRed,NULL,setLightGreen
+1,BUTTON_2,1000,500,FAULT_ERROR,HISTORIC_IGNORE,setLightBlue,NULL,setLightGreen
 2,,0,0,,,NULL,NULL,NULL
 3,,0,0,,,NULL,NULL,NULL
 4,,0,0,,,NULL,NULL,NULL
