@@ -10,6 +10,7 @@ fault_max = 32
 rise_phrase = "const uint16_t rise_init[FAULT_MAX] = {"
 fall_phrase = "const uint16_t fall_init[FAULT_MAX] = {"
 historic_phrase = "#define HISTORIC_INIT "
+enable_phrase = "#define ENABLE_INIT "
 criticality_phrase = "#define CRITICALITY_INIT "
 set_handle_phrase = "const void (*set_handler_init[FAULT_MAX])() = {"
 cont_handle_phrase = "const void (*cont_handler_init[FAULT_MAX])() = {"
@@ -18,7 +19,7 @@ off_handle_phrase = "const void (*off_handler_init[FAULT_MAX])() = {"
 enum_phrase = "typedef enum { "
 enum_phrase_end = " } fault_name_t;"
 
-field_names = ['number', 'name', 'rise', 'fall', 'criticality', 'historic', 'set handle', 'cont handle', 'off handle']
+field_names = ['number', 'name', 'enable', 'rise', 'fall', 'criticality', 'historic', 'set handle', 'cont handle', 'off handle']
 
 # Import csv file
 faults = []
@@ -45,6 +46,14 @@ for i in range(len(faults) - 1, -1, -1):
         historic_phrase += '1'
     else:
         historic_phrase += '0'
+
+# Deal with enable
+enable_phrase += '0b' + '0' * blank_entries
+for i in range(len(faults) - 1, -1, -1):
+    if('ENABLE' in faults[i]['enable']):
+        enable_phrase += '1'
+    else:
+        enable_phrase += '0'
 
 # Deal with criticality
 criticality_phrase += '0b' + '0' * blank_entries * 2
@@ -93,10 +102,11 @@ if(line_found):
     source_content[start_line] = rise_phrase + '\n'
     source_content[start_line + 1] = fall_phrase + '\n'
     source_content[start_line + 2] = historic_phrase + '\n'
-    source_content[start_line + 3] = criticality_phrase + '\n'
-    source_content[start_line + 4] = set_handle_phrase + '\n'
-    source_content[start_line + 5] = cont_handle_phrase + '\n'
-    source_content[start_line + 6] = off_handle_phrase + '\n'
+    source_content[start_line + 3] = enable_phrase + '\n'
+    source_content[start_line + 4] = criticality_phrase + '\n'
+    source_content[start_line + 5] = set_handle_phrase + '\n'
+    source_content[start_line + 6] = cont_handle_phrase + '\n'
+    source_content[start_line + 7] = off_handle_phrase + '\n'
 
     source_fid = open(source_file_name, "w")
     source_fid.writelines(source_content)

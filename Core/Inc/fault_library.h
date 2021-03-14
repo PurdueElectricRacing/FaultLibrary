@@ -47,6 +47,7 @@ typedef struct {
   void (*cont_handler[FAULT_MAX])();
   void (*off_handler[FAULT_MAX])();
   uint32_t historic_type;
+  uint32_t enable_type;
 
 } fault_t;
 
@@ -63,14 +64,20 @@ typedef enum {
   FAULT_CRITICAL
 } fault_criticality_t;
 
+typedef enum {
+  FAULT_DISABLED,
+  FAULT_ENABLED
+} fault_enable_t;
+
 void faultLibInitialize();
-void signalFault(uint8_t bit_pos);
+void signalFault(uint8_t loc);
 void faultLibShutdown();
 void clearHistory();
 uint8_t getFaultSet(uint8_t loc);
 uint8_t getFaultSignal(uint8_t loc);
 uint8_t getHistoricOverriding(uint8_t loc);
 fault_criticality_t getCriticality(uint8_t loc);
+fault_enable_t getFaultEnabled(uint8_t loc);
 
 //Generic criticality functions
 //Called once when fault set

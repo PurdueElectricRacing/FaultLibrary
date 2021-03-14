@@ -11,9 +11,10 @@ void setHistoric(uint8_t loc, uint8_t val);
 void setCriticality(uint8_t loc, uint8_t val);
 
 // GENERATED VALUES --------
-const uint16_t rise_init[FAULT_MAX] = {1000, 1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-const uint16_t fall_init[FAULT_MAX] = {3000, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+const uint16_t rise_init[FAULT_MAX] = {0, 1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+const uint16_t fall_init[FAULT_MAX] = {3000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #define HISTORIC_INIT 0b00000000000000000000000000000000
+#define ENABLE_INIT 0b00000000000000000000000000000011
 #define CRITICALITY_INIT 0b0000000000000000000000000000000000000000000000000000000000000110
 const void (*set_handler_init[FAULT_MAX])() = {setLightRed, setLightBlue, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 const void (*cont_handler_init[FAULT_MAX])() = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
@@ -35,6 +36,7 @@ void faultLibInitialize()
     faults.fall_threshold[i] /= PERIOD_FAULT_TASK;
   }
   faults.historic_type = HISTORIC_INIT;
+  faults.enable_type = ENABLE_INIT;
   faults.stored.criticality = CRITICALITY_INIT;
   memcpy(faults.set_handler, set_handler_init, sizeof(faults.set_handler));
   memcpy(faults.cont_handler, cont_handler_init, sizeof(faults.cont_handler));
@@ -56,7 +58,7 @@ void faultTask()
 
     for (int i = 0; i < FAULT_MAX; i++)
     {
-      if (getHistoricOverriding(i))
+      if (getHistoricOverriding(i) && getFaultEnabled(i) != FAULT_DISABLED)
       {
         callFunction(i, faults.cont_handler);
         setFault(i, 1);
@@ -89,15 +91,12 @@ void faultTask()
           faults.current_time[i]++;
         }
       }
-      else if(getFaultSignal(i))
+      else if(getFaultSignal(i) && getFaultEnabled(i) != FAULT_DISABLED)
       {
         // fault is not set, use rise counter
 
-        if(faults.rise_threshold[i] == 0)
-        {
-          //rise threshold infinite
-        }
-        else if (faults.current_time[i] < faults.rise_threshold[i])
+        // if rise threshold is 0, instant set
+        if (faults.current_time[i] < faults.rise_threshold[i])
         {
           faults.current_time[i]++;
         }
@@ -194,11 +193,16 @@ fault_criticality_t getCriticality(uint8_t loc)
   return ((faults.stored.criticality >> loc * 2) & 0b11);
 }
 
+fault_enable_t getFaultEnabled(uint8_t loc)
+{
+  return ((faults.enable_type >> loc) & 1);
+}
+
 //signals that a fault has occurred
 //NOT set, set requires signal on for a time threshold
-void signalFault(uint8_t bit_pos)
+void signalFault(uint8_t loc)
 {
-  faults.stored.signal |= 1 << bit_pos;
+  faults.stored.signal |= 1 << loc;
 }
 
 void setFault(uint8_t loc, uint8_t val)
@@ -233,4 +237,3 @@ __weak void handleWarningFault()
 {
   //Define elsewhere if you want to use it
 }
-
