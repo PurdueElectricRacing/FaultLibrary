@@ -19,7 +19,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -47,7 +46,6 @@ I2C_HandleTypeDef hi2c3;
 
 UART_HandleTypeDef huart1;
 
-osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -57,16 +55,25 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C3_Init(void);
-void StartDefaultTask(void const * argument);
-
 /* USER CODE BEGIN PFP */
 void buttonCheckerTask();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t bit_pos = 0;
-uint8_t bit_pos2 = 1;
+uint8_t run;
+uint32_t loop;
+
+void TIM2_IRQHandler()
+{
+    TIM2->SR &= ~TIM_SR_UIF;                                        // Acknowledge the interrupt
+    run = 1;                                                        // Signal main loop to process
+    loop++;
+   // if (++loop > 5000)                                               // Wrap when close to 255 to prevent jitter
+   // {
+   //     loop = 1;                                                   // Reset loop value
+   // }
+}
 
 void handleCriticalFault() {
   setLightRed();
@@ -83,7 +90,6 @@ void handleErrorFault() {
   * @retval int
   */
 int main(void)
-
 {
   /* USER CODE BEGIN 1 */
 
@@ -111,44 +117,22 @@ int main(void)
   MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
 
-  /* USER CODE END 2 */
+  RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;   // Enable timer clock in RCC
+  TIM2->PSC = 8000 - 1; // AHB2 is configured at 80Mhz
+  TIM2->ARR = 100;
+  TIM2->CR1 &= ~(TIM_CR1_DIR);
+  TIM2->DIER |= TIM_DIER_UIE;
+  NVIC->ISER[0] |= 1 << TIM2_IRQn;
+  TIM2->CR1 |= TIM_CR1_CEN;
 
-  /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
-
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
-
-  /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
-
-  /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
   eepromInitialize(&hi2c3, 4000, 0x50);
   eepromLinkStruct(&(faults.stored), sizeof(fault_stored_t), FAULT_EEPROM_NAME, 2, 1);
   eepromCleanHeaders();
 
   faultLibInitialize();
-  xTaskCreate(&buttonCheckerTask, "Button", 256, NULL, 1, NULL);
 
-  /* USER CODE END RTOS_QUEUES */
+  /* USER CODE END 2 */
 
-  /* Create the thread(s) */
-  /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
-  /* USER CODE END RTOS_THREADS */
-
-  /* Start scheduler */
-  osKernelStart();
-
-  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -156,6 +140,24 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    if(loop % 5 == 0)
+    {
+      buttonCheckerTask();
+    }
+
+    if (loop % (FAULT_LIB_PERIOD / 10) == 0)
+    {
+      faultLibUpdate();
+    }
+
+    if (loop % 100 == 0)
+    {
+      HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+    }
+
+    while(!run); // loop is ran every 10 ms
+    run = 0;
   }
   /* USER CODE END 3 */
 }
@@ -341,10 +343,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void buttonCheckerTask()
 {
-  while (PER == GREAT)
-  {
-    TickType_t current_tick_time = xTaskGetTickCount();
-
     if (HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin) &&
         HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin))
     {
@@ -363,31 +361,8 @@ void buttonCheckerTask()
       faultLibShutdown();
       setLightOff();
     }
-
-
-    vTaskDelayUntil(&current_tick_time, pdMS_TO_TICKS(40));
-  }
-  vTaskDelete(NULL);
 }
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_StartDefaultTask */
-/**
-  * @brief  Function implementing the defaultTask thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
-{
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END 5 */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.

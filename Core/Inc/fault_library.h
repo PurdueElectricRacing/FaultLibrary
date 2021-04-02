@@ -11,7 +11,6 @@
 #include <string.h>
 #include "main.h"
 #include "stm32l4xx_hal.h"
-#include "cmsis_os.h"
 #include "eeprom.h"
 
 // Be sure to include headers with locations to functions!
@@ -20,7 +19,7 @@
 #define PER 1
 #define GREAT PER
 
-#define PERIOD_FAULT_TASK 50 //ms
+#define FAULT_LIB_PERIOD 10 //ms
 
 #define FAULT_MAX 32
 
@@ -40,15 +39,10 @@ typedef struct {
 
 typedef struct {
   volatile fault_stored_t stored;
-  uint16_t rise_threshold[FAULT_MAX];
-  uint16_t fall_threshold[FAULT_MAX];
-  uint16_t current_time[FAULT_MAX];
-  void (*set_handler[FAULT_MAX])(); //function pointer
-  void (*cont_handler[FAULT_MAX])();
-  void (*off_handler[FAULT_MAX])();
+  uint16_t cycle_count[FAULT_MAX]; // cycles since first signal
+  uint16_t signal_count[FAULT_MAX]; // signals seen since first signal
   uint32_t historic_type;
   uint32_t enable_type;
-
 } fault_t;
 
 fault_t faults;
@@ -70,6 +64,7 @@ typedef enum {
 } fault_enable_t;
 
 void faultLibInitialize();
+void faultLibUpdate();
 void signalFault(uint8_t loc);
 void faultLibShutdown();
 void clearHistory();

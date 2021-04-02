@@ -7,19 +7,20 @@ source_file_name = "../Core/Src/fault_library.c"
 header_file_name = "../Core/Inc/fault_library.h"
 fault_max = 32
 
-rise_phrase = "const uint16_t rise_init[FAULT_MAX] = {"
-fall_phrase = "const uint16_t fall_init[FAULT_MAX] = {"
+rise_phrase = "const uint16_t rise_threshold[FAULT_MAX] = {"
+fall_phrase = "const uint16_t fall_threshold[FAULT_MAX] = {"
+signal_phrase = "const uint8_t signal_period[FAULT_MAX] = {"
 historic_phrase = "#define HISTORIC_INIT "
 enable_phrase = "#define ENABLE_INIT "
 criticality_phrase = "#define CRITICALITY_INIT "
-set_handle_phrase = "const void (*set_handler_init[FAULT_MAX])() = {"
-cont_handle_phrase = "const void (*cont_handler_init[FAULT_MAX])() = {"
-off_handle_phrase = "const void (*off_handler_init[FAULT_MAX])() = {"
+set_handle_phrase = "const void (*set_handler[FAULT_MAX])() = {"
+cont_handle_phrase = "const void (*cont_handler[FAULT_MAX])() = {"
+off_handle_phrase = "const void (*off_handler[FAULT_MAX])() = {"
 
 enum_phrase = "typedef enum { "
 enum_phrase_end = " } fault_name_t;"
 
-field_names = ['number', 'name', 'enable', 'rise', 'fall', 'criticality', 'historic', 'set handle', 'cont handle', 'off handle']
+field_names = ['number', 'name', 'enable', 'rise', 'fall', 'period', 'criticality', 'historic', 'set handle', 'cont handle', 'off handle']
 
 # Import csv file
 faults = []
@@ -35,8 +36,10 @@ settings_fid.close()
 for fault in faults:
     rise_phrase += fault['rise'] + ', '
     fall_phrase += fault['fall'] + ', '
+    signal_phrase += fault['period'] + ', '
 rise_phrase = rise_phrase[:-2] + '};'
 fall_phrase = fall_phrase[:-2] + '};'
+signal_phrase = signal_phrase[:-2] + '};'
 
 # Deal with historic
 blank_entries = fault_max - len(faults)
@@ -101,12 +104,13 @@ if(line_found):
 
     source_content[start_line] = rise_phrase + '\n'
     source_content[start_line + 1] = fall_phrase + '\n'
-    source_content[start_line + 2] = historic_phrase + '\n'
-    source_content[start_line + 3] = enable_phrase + '\n'
-    source_content[start_line + 4] = criticality_phrase + '\n'
-    source_content[start_line + 5] = set_handle_phrase + '\n'
-    source_content[start_line + 6] = cont_handle_phrase + '\n'
-    source_content[start_line + 7] = off_handle_phrase + '\n'
+    source_content[start_line + 2] = signal_phrase + '\n'
+    source_content[start_line + 3] = historic_phrase + '\n'
+    source_content[start_line + 4] = enable_phrase + '\n'
+    source_content[start_line + 5] = criticality_phrase + '\n'
+    source_content[start_line + 6] = set_handle_phrase + '\n'
+    source_content[start_line + 7] = cont_handle_phrase + '\n'
+    source_content[start_line + 8] = off_handle_phrase + '\n'
 
     source_fid = open(source_file_name, "w")
     source_fid.writelines(source_content)
