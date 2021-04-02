@@ -18,4 +18,6 @@ void setLightBlue();
 void setLightGreen();
 void setLightOff();
 
+#define BUTTON_PERIOD 50
+
 #endif /* INC_FAULT_TEST_H_ */

@@ -141,7 +141,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    if(loop % 5 == 0)
+    if(loop % (BUTTON_PERIOD / 10) == 0)
     {
       buttonCheckerTask();
     }

@@ -27,7 +27,9 @@
 
 // GENERATED VALUES ------
 typedef enum { BUTTON_1_FAULT_NUM, BUTTON_2_FAULT_NUM } fault_name_t;
-
+#define HISTORIC_INIT 0x0
+#define ENABLE_INIT 0x3
+#define CRITICALITY_INIT 0x6
 // END GENERATED VALUES ---------
 
 typedef struct {

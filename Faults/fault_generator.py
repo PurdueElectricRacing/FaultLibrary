@@ -1,4 +1,5 @@
 import csv
+from os import get_inheritable
 
 # Note: to be ran from the directory of the python program
 generation_line = "// GENERATED VALUES"
@@ -41,33 +42,6 @@ rise_phrase = rise_phrase[:-2] + '};'
 fall_phrase = fall_phrase[:-2] + '};'
 signal_phrase = signal_phrase[:-2] + '};'
 
-# Deal with historic
-blank_entries = fault_max - len(faults)
-historic_phrase += '0b' + '0' * blank_entries
-for i in range(len(faults) - 1, -1, -1):
-    if('OVERRIDE' in faults[i]['historic']):
-        historic_phrase += '1'
-    else:
-        historic_phrase += '0'
-
-# Deal with enable
-enable_phrase += '0b' + '0' * blank_entries
-for i in range(len(faults) - 1, -1, -1):
-    if('ENABLE' in faults[i]['enable']):
-        enable_phrase += '1'
-    else:
-        enable_phrase += '0'
-
-# Deal with criticality
-criticality_phrase += '0b' + '0' * blank_entries * 2
-for i in range(len(faults) -1, -1, -1):
-    if('CRITICAL' in faults[i]['criticality']):
-        criticality_phrase += '10'
-    elif('ERROR' in faults[i]['criticality']):
-        criticality_phrase += '01'
-    else:
-        criticality_phrase += '00'
-
 # Deal with handlers
 for fault in faults:
     set_handle_phrase += fault['set handle'] + ', '
@@ -82,6 +56,36 @@ for fault in faults:
     if(len(fault['name']) > 0):
         enum_phrase += fault['name'] + '_FAULT_NUM' + ', '
 enum_phrase = enum_phrase[:-2] + enum_phrase_end
+
+# Deal with historic
+blank_entries = fault_max - len(faults)
+binary_phrase = '0' * blank_entries
+for i in range(len(faults) - 1, -1, -1):
+    if('OVERRIDE' in faults[i]['historic']):
+        binary_phrase += '1'
+    else:
+        binary_phrase += '0'
+historic_phrase += hex(int(binary_phrase, 2))
+
+# Deal with enable
+binary_phrase = '0' * blank_entries
+for i in range(len(faults) - 1, -1, -1):
+    if('ENABLE' in faults[i]['enable']):
+        binary_phrase += '1'
+    else:
+        binary_phrase += '0'
+enable_phrase += hex(int(binary_phrase, 2))
+
+# Deal with criticality
+binary_phrase = '0' * blank_entries
+for i in range(len(faults) -1, -1, -1):
+    if('CRITICAL' in faults[i]['criticality']):
+        binary_phrase += '10'
+    elif('ERROR' in faults[i]['criticality']):
+        binary_phrase += '01'
+    else:
+        binary_phrase += '00'
+criticality_phrase += hex(int(binary_phrase, 2))
 
 # Import source file
 start_line = 0
@@ -105,12 +109,9 @@ if(line_found):
     source_content[start_line] = rise_phrase + '\n'
     source_content[start_line + 1] = fall_phrase + '\n'
     source_content[start_line + 2] = signal_phrase + '\n'
-    source_content[start_line + 3] = historic_phrase + '\n'
-    source_content[start_line + 4] = enable_phrase + '\n'
-    source_content[start_line + 5] = criticality_phrase + '\n'
-    source_content[start_line + 6] = set_handle_phrase + '\n'
-    source_content[start_line + 7] = cont_handle_phrase + '\n'
-    source_content[start_line + 8] = off_handle_phrase + '\n'
+    source_content[start_line + 3] = set_handle_phrase + '\n'
+    source_content[start_line + 4] = cont_handle_phrase + '\n'
+    source_content[start_line + 5] = off_handle_phrase + '\n'
 
     source_fid = open(source_file_name, "w")
     source_fid.writelines(source_content)
@@ -139,6 +140,9 @@ if(line_found):
     print("Generating on line " + str(start_line))
 
     header_content[start_line] = enum_phrase + '\n'
+    header_content[start_line + 1] = historic_phrase + '\n'
+    header_content[start_line + 2] = enable_phrase + '\n'
+    header_content[start_line + 3] = criticality_phrase + '\n'
 
     header_fid = open(header_file_name, "w")
     header_fid.writelines(header_content)
